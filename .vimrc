@@ -39,8 +39,10 @@ set guifont=DejaVu\ Sans\ Mono\ 12
 :map! <F2> <C-R> import pdb; pdb.set_trace()<CR>
 :map! <F3> <C-R> sys.exit()<CR>
 :map! <F4> <C-R> import matplotlib.pyplot as plt<CR>
-:map! <F5> <C-R> from hydrodiy.plot import putils<CR>
-:map! <F6> <C-R> fig, axs = putils.get_fig_axs()<CR>
+:map! <F5> <C-R> fig, axs = putils.get_fig_axs()<CR>
+
+nmap <F6> i<C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR><Esc>
+imap <F6> <C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR>
 
 " Latex compile rule
 let g:tex_flavor='latex'  
