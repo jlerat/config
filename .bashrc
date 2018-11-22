@@ -41,3 +41,9 @@ gcommit ()
 # added by Anaconda3 installer
 export PATH="/home/julien/anaconda3/bin:$PATH"
 
+# Git fetch and merge forward
+gfetch ()
+{
+    git fetch origin --prune
+    git merge --ff-only origin/master
+}
