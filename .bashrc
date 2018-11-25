@@ -44,6 +44,6 @@ export PATH="/home/julien/anaconda3/bin:$PATH"
 # Git fetch and merge forward
 gfetch ()
 {
-    git fetch origin --prune
-    git merge --ff-only origin/master
+    git fetch $1 --prune
+    git merge --ff-only $1/$2 || git rebase --preserve-merges $1/$2
 }
