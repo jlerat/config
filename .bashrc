@@ -47,3 +47,24 @@ gfetch ()
     git fetch $1 --prune
     git merge --ff-only $1/$2 || git rebase --preserve-merges $1/$2
 }
+
+
+# Parallel run of python scripts
+pararun()
+{
+    # Parse arguments
+    SCRIPT_FILE=$(python -c "import sys; print(sys.argv[1])" $@ 2>&1) 
+    NBATCH=$(python -c "import sys; print(int(sys.argv[2]))" $@ 2>&1) 
+    
+    echo "script = "$SCRIPT_FILE
+    echo "nbatch = "$NBATCH
+    echo "script arguments = " ${@:3}
+    
+    let NMAX=NBATCH-1
+    for IBATCH in `seq 0 $NMAX`;
+    do
+        echo "Started script "$SCRIPT_FILE" - ibatch = " $IBATCH
+        nohup python $SCRIPT_FILE -i $IBATCH -n $NBATCH ${@:3} &
+        echo "Completed script "$SCRIPT_FILE" - ibatch = " $IBATCH
+    done
+}
