@@ -48,6 +48,11 @@ gfetch ()
     git merge --ff-only $1/$2 || git rebase --preserve-merges $1/$2
 }
 
+glog()
+{
+    printf "\n-------- Last $1 logs --------\n\n"
+    git log -$1 --pretty="%h %s" | xargs -I message printf message"\n\n"
+}
 
 # Parallel run of python scripts
 pararun()
