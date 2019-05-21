@@ -51,7 +51,7 @@ gfetch ()
 glog()
 {
     printf "\n-------- Last $1 logs --------\n\n"
-    git log -$1 --pretty="%h %s" | xargs -I message printf "%s\n\n" message
+    git log -$1 --pretty="%h %s" | xargs -I message printf message"\n\n"
 }
 
 # Parallel run of python scripts
