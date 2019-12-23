@@ -73,3 +73,24 @@ pararun()
         echo "Completed script "$SCRIPT_FILE" - ibatch = " $IBATCH
     done
 }
+
+# Update all git repos
+fetchall()
+{
+    CPATH=$HOME/Code
+    declare -a ALLREPOS=(\
+        "hydrodiy" \
+        "hync" \
+    )
+
+    for repos in "${ALLREPOS[@]}"
+    do
+        echo "----- Fetching repos $repos -----"
+        cd $CPATH/$repos
+        gfetch origin master
+    done
+}
+
+
+
+}
