@@ -1,10 +1,13 @@
 #!/bin/bash
 #PBS -P er4
+#PBS -N gadi_jupyter
 #PBS -q express
 #PBS -l walltime=9:00:00
 #PBS -l mem=32GB
 #PBS -l wd
 #PBS -l ncpus=1
+#PBS -o /g/data1a/er4/jml548/Code/config/gadi_run_jupyter_notebooks.out
+#PBS -e /g/data1a/er4/jml548/Code/config/gadi_run_jupyter_notebooks.err
 #PBS -lstorage=gdata/er4+gdata/oe9
  
 # Script to fireup a Jupyter notebook with display on local machine
@@ -19,27 +22,27 @@ ipnport=$(shuf -i8000-9999 -n1)
 ipnip=$(hostname -i)
  
 ## print tunneling instructions to ipyrad-log file
-DIR=/g/data/er4/jml548/Code/config/gadi_jupyter_notebooks.log
-FLOG=$DIR/gadi_run_jupyter_notebook.log
-echo -e "\n\n   Copy/Paste this in your local terminal to ssh tunnel with remote " 1> $FLOG
-echo        "-------------------------------------------------" 1>$FLOG
-echo        "   ssh -N -L 8888:$ipnip:$ipnport jml548@gadi.nci.org.au" 1>$FLOG
-#I added the below line to see if it allows the ssh to urn interactively and
-#hence run my conda environment.
-#echo        "   ssh -N -L 8888:$ipnip:$ipnport jp0715@raijin.nci.org.au 'echo foo' "
-echo        "-------------------------------------------------" 1>$FLOG
-echo -e "\n\n   Then open a browser on your local machine to the following address" 1>$FLOG
-echo        "-------------------------------------------------" 1>$FLOG
-echo        "   localhost:8888                                " 1>$FLOG
-echo        "-------------------------------------------------" 1>$FLOG
+#DIR=/g/data/er4/jml548/Code/config
+#FLOG=$DIR/gadi_run_jupyter_notebook.log
+echo -e "\n\n   Copy/Paste this in your local terminal to ssh tunnel with remote "
+echo        "-------------------------------------------------" 
+echo        "   ssh -N -L 8888:$ipnip:$ipnport jml548@gadi.nci.org.au" 
+echo        "-------------------------------------------------" 
+echo -e "\n\n   Then open a browser on your local machine to the following address" 
+echo        "-------------------------------------------------" 
+echo        "   localhost:8888                                " 
+echo        "-------------------------------------------------" 
 sleep 1
 
 # Activate environment (my environment at the moment)
-source activate /g/data/er4/jml548/conda/envs/jul_gadi
+#source activate /g/data/er4/jml548/conda/envs/jul_gadi
+source /g/data/oe9/user/$USER/gadi_activate
+
+cd /g/data/oe9/user/$USER/
 
 # Fire jupyter
-echo        "   Jupyter info                                  " 1>$FLOG
-echo        "-------------------------------------------------" 1>$FLOG
-jupyter-notebook --no-browser --port=$ipnport --ip=$ipnip 1> $FLOG
+echo        "   Jupyter info                                  " 
+echo        "-------------------------------------------------" 
+jupyter-notebook --no-browser --port=$ipnport --ip=$ipnip 
 
  
