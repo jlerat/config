@@ -40,6 +40,9 @@ sleep 1
 #source activate /g/data/er4/jml548/conda/envs/jul_gadi
 source /g/data/oe9/user/$USER/gadi_activate
 
+# Move to training folder to get proper initialisation of Jupytere
+cd /g/data/oe9/user/$USER
+
 # Fire jupyter
 echo        "   Jupyter info                                  " >> $FLOG
 echo        "-------------------------------------------------" >> $FLOG
