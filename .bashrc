@@ -10,6 +10,10 @@ fi
 
 # User specific aliases and functions
 
+# Show folder structure
+alias tree2="tree -dC -L 2"
+alias tree3="tree -dC -L 3"
+
 # Disable automatic removal of files
 alias mv="mv -i"
 alias cp="cp -i"
