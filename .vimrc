@@ -31,7 +31,16 @@ colorscheme desert
 set nu
 
 " Vim font
-set guifont=DejaVu\ Sans\ Mono\ 12
+if has("gui_running")
+  if has("gui_gtk2")
+    set guifont=Inconsolata\ 12
+  elseif has("gui_macvim")
+    set guifont=Menlo\ Regular:h14
+  elseif has("gui_win32")
+    set guifont=Consolas:h11:cANSI
+  endif
+endif
+
 
 "" set the runtime path to include Vundle and initialize
 
