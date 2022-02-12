@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+
+# a list of all files that are changing with this commit
+FILES_CHANGING=$(git diff --cached --name-only --diff-filter=ACM)
+
+# if there are files in script folder only
+if [ $(echo "$FILES_CHANGING" | grep -G '^scripts' | wc -l) -ge 1 ]; then
+    # append it to $1 - the file containing the commit message
+    echo " [ci skip]" >> $1
+fi
