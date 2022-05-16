@@ -58,6 +58,16 @@ glog()
     git log -$1 --pretty="%h %s" | xargs -I message printf message"\n\n"
 }
 
+# Analyse log files
+logcheck()
+{
+    printf "\n-------- Analyse log files in $1 --------\n"
+    echo "Nb proc started     : " $(grep 'Process started' $1/*.log | wc -l)
+    echo "Nb proc completed   : " $(grep 'Process completed' $1/*.log | wc -l)
+    echo "Nb proc with errrors: " $(grep 'Err' $1/*.log | wc -l)
+    printf "\n"
+}
+
 # Parallel run of python scripts
 pararun()
 {
