@@ -11,8 +11,10 @@ tasks = np.sort(tasks)
 expected = np.arange(0, tasks.max()+1)
 print(f"{len(expected)} log files expected, {len(tasks)} found.")
 
-missings = set(expected.tolist())-set(tasks.tolist())
-
-print("Missing log file for tasks")
-for miss in missings:
-    print(f"{miss},")
+if len(expected)>len(tasks):
+    missings = set(expected.tolist())-set(tasks.tolist())
+    print("Missing log file for tasks")
+    for miss in missings:
+        print(f"{miss},")
+else:
+    print("All good.")
