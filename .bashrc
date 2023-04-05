@@ -124,11 +124,13 @@ logcheck()
     echo $jobs
 
 
+    printf "\n-------- Analyse error files in $1 --------\n"
     for job in "${jobsa[@]}"
     do
-        printf "\n-------- Analyse error files for JOB $job --------\n"
-        echo "Nb jobs started           : " $(ls $1/*JOB$job.err | wc -l) || true
-        echo "Nb jobs with errors       : " $(grep 'error' $1/*JOB$job.err | wc -l) || true
+        printf "  JOB $job:\n"
+        echo "     Nb jobs started           : " $(ls $1/*JOB$job.err | wc -l) || true
+        echo "     Nb jobs with errors       : " $(grep 'error' $1/*JOB$job.err | wc -l) || true
+        printf "\n"
     done
 
  
