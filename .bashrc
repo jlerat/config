@@ -25,7 +25,7 @@ alias rm="rm -i"
 alias ls="ls -a --color"
 
 # Update nriv packages
-alias pupdate="/datasets/work/lw-resilient-nr/work/0_Common_Data/5_Software/1_Python/conda/update_packages.sh env_nriv_v3"
+alias pupdate="/datasets/work/lw-resilient-nr/work/0_Common_Data/5_Software/1_Python/conda/update_packages.sh env_nriv_v4"
 
 # Function to find text
 wherein ()
@@ -118,32 +118,7 @@ gpam ()
 # Analyse log files
 logcheck()
 {
-    printf "\n-------- Jobs found in $1 --------\n"
-    jobs=$(python ~/findjobs.py $1)
-    jobsa=($jobs)
-    echo $jobs
-
-
-    printf "\n-------- Analyse error files in $1 --------\n"
-    for job in "${jobsa[@]}"
-    do
-        printf "  JOB $job:\n"
-        echo "     Nb jobs started           : " $(ls $1/*JOB$job.err | wc -l) || true
-        echo "     Nb jobs with errors       : " $(grep 'error' $1/*JOB$job.err | wc -l) || true
-        printf "\n"
-    done
-
- 
-    printf "\n-------- Analyse log files in $1 --------\n"
-    echo "Nb processes started      : " $(grep 'Process started' $1/*.log | wc -l) || true
-    echo "Nb processes completed    : " $(grep 'Process completed' $1/*.log | wc -l) || true
-    echo "Nb processes with warnings: " $(grep 'WARNING' $1/*.log | wc -l) || true
-    echo "Nb processes with errors  : " $(grep 'Err' $1/*.log | wc -l) || true
-
-    
-    printf "\n-------- Missing log files from task numbers in $1 --------\n"
-    echo $(python ~/findtasks.py $1)
-    printf "\n"
+    python ~/logcheck.py $1
 }
 
 
