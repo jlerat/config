@@ -3,18 +3,24 @@ import subprocess
 from pathlib import Path
 import re
 
+# -------------------------------------------------------------
+# Config
+# -------------------------------------------------------------
 # Print line size
-line_size = 5
-indent_size = 2
-def indent(n):
-    return "".join([" "]*indent_size*n)
+ITEMS_PER_LINES = 8
+INDENT_SIZE = 3
 
-# Finds the list of jobs
+# -------------------------------------------------------------
+# Folders
+# -------------------------------------------------------------
 FOLDER = Path(sys.argv[1]).resolve()
-lf = list(FOLDER.glob('*.out'))
-jobs = list(set([re.sub('.*_JOB', '', f.stem) for f in lf]))
 
+# -------------------------------------------------------------
 # Utils
+# -------------------------------------------------------------
+def indent(n):
+    return "".join([" "]*INDENT_SIZE*n)
+
 def ls(files):
     #f = f"{FOLDER}/{files}"
     #l = subprocess.run(["ls", f], capture_output=True)
@@ -38,8 +44,20 @@ def grep(files, pattern, commands=''):
 def get_task(files):
     return [int(re.search('(?<=TASK)[0-9]+', str(f)).group()) for f in files]
 
+def printlist(objs, message, ind):
+    if len(objs)>0:
+        print(f"{indent(ind)}{message}:")
+        for i in range(0, len(objs), ITEMS_PER_LINES):
+            o = [str(n) for n in objs[i:i+ITEMS_PER_LINES]]
+            print(f"{indent(ind+1)}"+" ".join(o))
 
+
+# -------------------------------------------------------------
+# Process
+# -------------------------------------------------------------
 print(f"\n----------- ERROR FILES --------------")
+lf = list(FOLDER.glob('*.out'))
+jobs = list(set([re.sub('.*_JOB', '', f.stem) for f in lf]))
 for jobid in jobs:
     print(f"{indent(1)}JOB ID {jobid}")
 
@@ -54,11 +72,9 @@ for jobid in jobs:
     # Print error file numbers
     if len(g)>0:
         errn = [re.sub(".*_TASK|_JOB.*", "", f) for f in g]
-        print(f"{indent(2)}Files with error : ")
-        for i in range(0, len(errn), line_size):
-            print(f"{indent(2)}"+" ".join(errn[i:i+line_size]))
-
+        printlist(errn, "Files with error", 2)
     print("\n")
+
 
 print(f"----------- LOG FILES --------------")
 # Count log files
@@ -69,18 +85,13 @@ expected = [i for i in range(0, max(tasks)+1)]
 print(f"{indent(1)}Files expected/found :"+\
             f" {len(expected)} / {len(tasks)}")
 
-if len(expected)>len(flogs):
-    missings = set(expected)-set(tasks)
-    print(f"{indent(1)}Missing files:")
-    for i in range(0, len(missing), line_size):
-        missn = [str(n) for n in missing[i:i+line_size]]
-        print(f"{indent(1)}"+" ".join(missn))
-
 gs = grep("*.log", "process started", "il")
 print(f"{indent(1)}Files started        : {len(gs)}")
+started = get_task(gs)
 
 gc = grep("*.log", "process completed", "il")
 print(f"{indent(1)}Files completed      : {len(gc)}")
+completed = get_task(gc)
 
 gw = grep("*.log", "warn", "il")
 print(f"{indent(1)}Files with warnings  : {len(gw)}")
@@ -88,14 +99,16 @@ print(f"{indent(1)}Files with warnings  : {len(gw)}")
 ge = grep("*.log", "error", "il")
 print(f"{indent(1)}Files with errors    : {len(ge)}")
 
-print("\n")
-completed = get_task(gc)
-if len(expected)>len(gc):
-    missings = list(set(expected)-set(completed))
-    print(f"{indent(1)}Not started or not completed:")
-    for i in range(0, len(missings), line_size):
-        missn = [str(n) for n in missings[i:i+line_size]]
-        print(f"{indent(1)}"+" ".join(missn))
+d = list(set(expected)-set(tasks))
+printlist(d, "Missing logs files", 1)
 
+d = list(set(started)-set(completed))
+printlist(d, "Files started but not completed", 1)
 
-print("\n")
+d = list(set(expected)-set(started))
+printlist(d, "Files not started", 1)
+
+e = get_task(ge)
+printlist(e, "Files with errors", 1)
+
+print("------------------------------------\n")
