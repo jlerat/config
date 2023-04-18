@@ -48,7 +48,7 @@ def printlist(objs, message, ind):
     if len(objs)>0:
         print(f"{indent(ind)}{message}:")
         for i in range(0, len(objs), ITEMS_PER_LINES):
-            o = [str(n) for n in objs[i:i+ITEMS_PER_LINES]]
+            o = [f"{int(n):4d}" for n in objs[i:i+ITEMS_PER_LINES]]
             print(f"{indent(ind+1)}"+" ".join(o))
 
 
@@ -57,58 +57,63 @@ def printlist(objs, message, ind):
 # -------------------------------------------------------------
 print(f"\n----------- ERROR FILES --------------")
 lf = list(FOLDER.glob('*.out'))
-jobs = list(set([re.sub('.*_JOB', '', f.stem) for f in lf]))
-for jobid in jobs:
-    print(f"{indent(1)}JOB ID {jobid}")
+if len(lf)>0:
+    jobs = list(set([re.sub('.*_JOB', '', f.stem) for f in lf]))
+    for jobid in jobs:
+        print(f"{indent(1)}JOB ID {jobid}")
 
-    # Count error files
-    l = ls(f"*JOB{jobid}.err")
-    print(f"{indent(2)}Nb err files            : {len(l)}")
+        # Count error files
+        l = ls(f"*JOB{jobid}.err")
+        print(f"{indent(2)}Nb err files            : {len(l)}")
 
-    # Finds error ignoring cases and reporting file names only
-    g = grep(f"*{jobid}.err", "error", "il")
-    print(f"{indent(2)}Nb err files with error : {len(g)}")
+        # Finds error ignoring cases and reporting file names only
+        g = grep(f"*{jobid}.err", "error", "il")
+        print(f"{indent(2)}Nb err files with error : {len(g)}")
 
-    # Print error file numbers
-    if len(g)>0:
-        errn = [re.sub(".*_TASK|_JOB.*", "", f) for f in g]
-        printlist(errn, "Files with error", 2)
-    print("\n")
-
+        # Print error file numbers
+        if len(g)>0:
+            errn = [re.sub(".*_TASK|_JOB.*", "", f) for f in g]
+            printlist(errn, "Task IDs of files with error", 2)
+        print("\n")
+else:
+    print("No err files found")
 
 print(f"----------- LOG FILES --------------")
 # Count log files
 flogs = ls("*.log")
-# List of tasks
-tasks = get_task(flogs)
-expected = [i for i in range(0, max(tasks)+1)]
-print(f"{indent(1)}Files expected/found :"+\
-            f" {len(expected)} / {len(tasks)}")
+if len(flogs)>0:
+    # List of tasks
+    tasks = get_task(flogs)
+    expected = [i for i in range(0, max(tasks)+1)]
+    print(f"{indent(1)}Files expected/found :"+\
+                f" {len(expected)} / {len(tasks)}")
 
-gs = grep("*.log", "process started", "il")
-print(f"{indent(1)}Files started        : {len(gs)}")
-started = get_task(gs)
+    gs = grep("*.log", "process started", "il")
+    print(f"{indent(1)}Files started        : {len(gs)}")
+    started = get_task(gs)
 
-gc = grep("*.log", "process completed", "il")
-print(f"{indent(1)}Files completed      : {len(gc)}")
-completed = get_task(gc)
+    gc = grep("*.log", "process completed", "il")
+    print(f"{indent(1)}Files completed      : {len(gc)}")
+    completed = get_task(gc)
 
-gw = grep("*.log", "warn", "il")
-print(f"{indent(1)}Files with warnings  : {len(gw)}")
+    gw = grep("*.log", "warn", "il")
+    print(f"{indent(1)}Files with warnings  : {len(gw)}")
 
-ge = grep("*.log", "error", "il")
-print(f"{indent(1)}Files with errors    : {len(ge)}")
+    ge = grep("*.log", "error", "il")
+    print(f"{indent(1)}Files with errors    : {len(ge)}")
 
-d = list(set(expected)-set(tasks))
-printlist(d, "Missing logs files", 1)
+    d = list(set(expected)-set(tasks))
+    printlist(d, "IDs of missing logs files", 1)
 
-d = list(set(started)-set(completed))
-printlist(d, "Files started but not completed", 1)
+    d = list(set(started)-set(completed))
+    printlist(d, "IDs of processes started but not completed", 1)
 
-d = list(set(expected)-set(started))
-printlist(d, "Files not started", 1)
+    d = list(set(expected)-set(started))
+    printlist(d, "IDs of processes not started", 1)
 
-e = get_task(ge)
-printlist(e, "Files with errors", 1)
+    e = get_task(ge)
+    printlist(e, "IDs of process with errors", 1)
+else:
+    print("No log files found")
 
 print("------------------------------------\n")
