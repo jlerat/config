@@ -16,3 +16,23 @@ function Show-Gitlog($Nlog)
     Write-Output "`n-------- Last $Nlog logs --------`n"
     git log -$Nlog --pretty="%h %s`n"
 }
+
+function Gpam()
+{
+    Write-Output "`n-------- Pulling from azure  --------`n"
+    git pull azure master
+
+    Show-Gitlog 3
+}
+
+function Gppam()
+{
+    $msg = "Are you sure?"
+    $response = Read-Host -Prompt $msg
+    if ($response -eq 'y') {
+        Write-Output "`n-------- Pushing to azure  --------`n"
+        git push azure master
+
+        Show-Gitlog 3
+    }
+}
