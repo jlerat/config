@@ -122,6 +122,13 @@ logcheck()
 }
 
 
+# View csv file
+viewcsv()
+{
+    column -s, -t < $1 | less -#2 -N -S
+}
+
+
    
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
