@@ -5,7 +5,7 @@ channels:
 show_channel_urls: true
 
 envs_dirs:
-  - /datasets/work/lw-rowra/work/2_Hydrology/201_SG/0_Working/2_Julien/conda/envs
+  - /[to be defined]/conda/envs
 
 pkgs_dirs:
-  - /datasets/work/lw-rowra/work/2_Hydrology/201_SG/0_Working/2_Julien/conda/pkg
+  - /[to be defined]conda/pkgs

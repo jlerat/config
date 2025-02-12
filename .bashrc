@@ -1,4 +1,5 @@
 # .bashrc
+# t
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -11,21 +12,14 @@ fi
 # User specific aliases and functions
 
 module load miniconda3
-
+module load valgrind
 module load openmpi
-
-# Show folder structure
-alias tree2="tree -dC -L 2"
-alias tree3="tree -dC -L 3"
 
 # Disable automatic removal of files
 alias mv="mv -i"
 alias cp="cp -i"
 alias rm="rm -i"
 alias ls="ls -a --color"
-
-# Update nriv packages
-alias pupdate="/datasets/work/lw-resilient-nr/work/0_Common_Data/5_Software/1_Python/conda/update_packages.sh env_nriv_v4"
 
 # Function to find text
 wherein ()
@@ -38,80 +32,41 @@ wherein ()
     done
 }
 
-# Git commit
-gcommit ()
-{
-    # Get date
-    export GIT_COMMITTER_DATE=$(python -c "import newdate; print(newdate.latedate())" 2>&1) 
-    echo "Commit date set to    :" $GIT_COMMITTER_DATE
-    echo "Commit message set to :" $1
-    # Run commit command
-    git commit -m "$1" --date="$GIT_COMMITTER_DATE"
-}
-
-# work spaces
-export NAWRA_WORK=/datasets/work/lw-rowra/work/2_Hydrology/201_SG/0_Working/2_Julien/
-export SCR=/scratch2/ler015
-
-export NRIV=/datasets/work/lw-resilient-nr/work
-export NWORK=/datasets/work/lw-resilient-nr/work/2_Hydrology/0_Working/1_Julien
-export NCONDA=/datasets/work/lw-resilient-nr/work/0_Common_Data/5_Software/1_Python/conda
-export NDPROC=/datasets/work/lw-resilient-nr/work/0_Common_Data/8_DataProcessingScripts/nrivdatascripts
-export NRPROC=/datasets/work/lw-resilient-nr/work/6_Reporting/1_ReportProcessingScripts/nrivreportingscripts
-export NHYDRO=/datasets/work/lw-resilient-nr/work/2_Hydrology
-export NFFREQ=/datasets/work/lw-resilient-nr/work/2_Hydrology/2_FloodFrequencyAnalysis/0_DataProcessingScripts/nrivfloodfreqscripts
-export NFVOL=/datasets/work/lw-resilient-nr/work/2_Hydrology/3_FloodVolumeEstimate/0_DataProcessingScripts/nrivfloodvolscripts
-export NFCVP=/datasets/work/lw-resilient-nr/work/2_Hydrology/2_FloodFrequencyAnalysis/6_covariate_paper/covariate_paper
-
-# Telemac-mascaret folders
-export HOMETEL=$NCONDA/src/telemac-mascaret
-export SYSTELCFG=$HOMETEL/configs/systel.cfg
-export USETELCFG=gfortranHPC
-export SOURCEFILE=$HOMETEL/configs/pysource.gfortranHPC.sh
-#export METISHOME=~/opt/metis-5.1.0
-
-showfolders ()
-{
-    echo ""
-    echo " NAWRA_WORK: " $NAWRA_WORK
-    echo " SCR       : " $SCR
-    echo " "
-    echo "-- Northern rivers --"
-    echo " NRIV      : " $NRIV
-    echo " NCONDA    : " $NCONDA
-    echo " NDPROC    : " $NDPROC
-    echo " NRPROC    : " $NRPROC
-    echo " NHYDRO    : " $NHYDRO
-    echo " NFFREQ    : " $NFFREQ
-    echo " NFVOL     : " $NFVOL
-    echo " NFCVP     : " $NFCVP 
-    echo " NWORK     : " $NWORK
-    echo " HOMETEL   : " $HOMETEL
-    echo ""
-}
-
-jobres ()
-{
-    sacct --format=JobID,elapsed%10,ncpus%5,ExitCode%8,Start%20,End%20,state -j $1
-}
-
-# Git fetch and merge forward
-gfetch ()
-{
-    git fetch $1 --prune
-    git merge --ff-only $1/$2 || git rebase --preserve-merges $1/$2
-}
-
-glog()
-{
-    printf "\n-------- Last $1 logs --------\n\n"
-    git log -$1 --pretty="%h %s (%ad)" | xargs -I message printf message"\n\n"
-}
-
 gpam ()
 {
     printf "\n-------- Pull from git azure master -----\n\n"
     git pull azure master
+    glog 3
+}
+
+gppam ()
+{
+    printf "\n-------- Push to git azure master -----\n\n"
+    read -p "Are you sure? " -n 1 -r
+    echo    # (optional) move to a new line
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        git push azure master
+    fi
+    glog 3
+}
+
+gpgm ()
+{
+    printf "\n-------- Pull from git github master -----\n\n"
+    git pull github master
+    glog 3
+}
+
+gppgm ()
+{
+    printf "\n-------- Push to git github master -----\n\n"
+    read -p "Are you sure? " -n 1 -r
+    echo    # (optional) move to a new line
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        git push github master
+    fi
     glog 3
 }
 
@@ -127,7 +82,6 @@ viewcsv()
 {
     column -s, -t < $1 | less -#2 -N -S
 }
-
 
    
 # >>> conda initialize >>>

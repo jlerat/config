@@ -41,6 +41,8 @@ if has("gui_running")
   endif
 endif
 
+" replace site pattern
+let @z = ' / psay€kb€kb€kbat = f"lcaw'
 
 "" set the runtime path to include Vundle and initialize
 
@@ -53,6 +55,8 @@ endif
 nmap <F6> i<C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR><Esc>
 imap <F6> <C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR>
 
+:map! <F8> <C-R> from termplot import lplot, splot<CR>
+
 " Latex compile rule
 let g:tex_flavor='latex'  
 let g:Tex_CompileRule_pdf = 'pdflatex --synctex=-1 -src-specials -interaction=nonstopmode -file-line-error-style $*'
@@ -64,3 +68,12 @@ let Tex_FoldedEnvironments=""
 let Tex_FoldedMisc=""
 let g:Imap_FreezeImap=1
 autocmd bufreadpre *.tex setlocal textwidth=0
+
+" Plugins
+call plug#begin()
+Plug 'tpope/vim-sensible'
+Plug 'nvie/vim-flake8'
+" Plug 'JuliaEditorSupport/julia-vim'
+call plug#end()
+
+filetype indent off
