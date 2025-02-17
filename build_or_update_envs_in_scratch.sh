@@ -4,9 +4,9 @@
 # Script to create conda environment in 
 # the scratch2 folder.
 # The script:
-#   1. Create folders /scracth2/ler015/conda, 
-#      /scratch2/ler015/conda/envs and 
-#      /scratch2/ler015/conda/pkg
+#   1. Create folders $FCONDA/conda, 
+#                     $FCONDA/conda/envs
+#                     $FCONDA/conda/pkgs
 #
 #   2. Copies the env.yml file from ~/conda/envs
 #
@@ -24,9 +24,13 @@
 # Get environment name
 ENVNAME=$1
 
+# Get target folder
+FCONDA=/datasets/work/ev-richmondflood/work/8_Software/conda
+
 FILENAME=$(basename $0)
 FLOG=~/conda/${FILENAME%.*}.log
 echo ------------------------------------------------- > $FLOG
+echo Target folder : $FCONDA >> $FLOG
 echo Creating or updating environment $ENVNAME >> $FLOG
 echo ------------------------------------------------- >> $FLOG
 echo >> $FLOG
@@ -34,15 +38,16 @@ echo >> $FLOG
 module load miniconda3
 
 # conda dir on scratch
-FCONDA=/scratch2/ler015/conda
 mkdir -p $FCONDA
 
 # Set directories
-export CONDA_PKGS_DIRS=$FCONDA/pkg
+export CONDA_PKGS_DIRS=$FCONDA/pkgs
 mkdir -p $CONDA_PKGS_DIRS
 
 export CONDA_ENVS_DIRS=$FCONDA/envs
 mkdir -p $CONDA_ENVS_DIRS
+
+export CONDA_ENVS_FILES_DIRS=$FCONDA/envs_yml_files
 
 export CONDA_PKGS_SRC=$FCONDA/src
 mkdir -p $CONDA_PKGS_SRC
@@ -59,21 +64,17 @@ echo ----------------------------------- >> $FLOG
 echo Creating CONDA env >> $FLOG
 echo >> $FLOG
 
-YAMLFILE=$CONDA_ENVS_DIRS/$ENVNAME.yml
-echo "YAML file : $YAMLFILE" >> $FLOG
+YAMLFILE=$CONDA_ENVS_FILES_DIRS/$ENVNAME.yml
 
 # Yaml file
 # CAUTION! We assume that the environment name given 
 # within the YAML file is the same than the file name.
-if [ ! -f "$YAMLFILE" ]; then
-    echo YAML file $YAMLFILE does not exist. Copy from home
-    cp ~/conda/envs/$ENVNAME.yml $YAMLFILE
-fi
 
 FENV=$CONDA_ENVS_DIRS/$ENVNAME
 if [ ! -d "$FENV" ]; then
     echo Environment $ENVNAME does not exist. Create
-    conda env create --file=$YAMLFILE --prefix $FCONDA/envs/$ENVNAME 
+    echo ".. Creating conda env"
+    conda env create --file=$YAMLFILE --prefix $CONDA_ENVS_DIRS/$ENVNAME >> $FLOG
 fi
 
 # -------------------------------------------------------------------------
@@ -84,7 +85,8 @@ conda activate $ENVNAME
 
 # -------------------------------------------------------------------------
 for PACKAGE in "hydrodiy" "hyzarr" "nrivplot" "nrivdata" \
-                        "nrivfloodfreq" "pygme"
+                        "nrivfloodfreq" "pygme" "floodstan" \
+                        "termplot" "pyquasoare" "pyflood2022"
 do
     echo >> $FLOG
     echo ----------------------------------- >> $FLOG
@@ -95,24 +97,40 @@ do
     # Name of git repos on azure depending if the
     # package name starts with nriv
     if [[ $PACKAGE == nriv* ]]; then
-        REPOS=git@ssh.dev.azure.com:v3/ler015/northern_rivers/$PACKAGE
+        GIT_REMOTE_NAME=azure
+        GIT_REMOTE_URL=git@ssh.dev.azure.com:v3/ler015/northern_rivers/$PACKAGE
+    elif [[ $PACKAGE == hyzarr ]]; then
+        GIT_REMOTE_NAME=azure
+        GIT_REMOTE_URL=git@ssh.dev.azure.com:v3/ler015/hyzarr/hyzarr
+    elif [[ $PACKAGE == hydrodiy ]]; then
+        GIT_REMOTE_NAME=github
+        GIT_REMOTE_URL=git@github.com:csiro-hydroinformatics/hydrodiy.git
+    elif [[ $PACKAGE == pygme ]]; then
+        GIT_REMOTE_NAME=github
+        GIT_REMOTE_URL=git@github.com:csiro-hydroinformatics/pygme.git
+    elif [[ $PACKAGE == pyquasoare ]]; then
+        GIT_REMOTE_NAME=github
+        GIT_REMOTE_URL=git@github.com:csiro-hydroinformatics/pyquasoare.git
     else
-        REPOS=git@ssh.dev.azure.com:v3/ler015/$PACKAGE/$PACKAGE
+        GIT_REMOTE_NAME=github
+        GIT_REMOTE_URL=git@github.com:jlerat/$PACKAGE.git
     fi
-    echo   Git repos: $REPOS >> $FLOG
+    echo   Git repos: $GIT_REMOTE_URL >> $FLOG
 
     if [ -d "$FPACK" ]; then
-        echo   "$PACKAGE folder exists. Git pull from azure" >> $FLOG
+        echo   "$PACKAGE folder exists. Git pull from $GIT_REMOTE_NAME" >> $FLOG
         cd $FPACK
-        git pull azure master
+        git remote rename origin $GIT_REMOTE_NAME
+        git pull $GIT_REMOTE_NAME master
+        git reset --hard HEAD
     else
-        echo   "$PACKAGE folder does not exist. Git clone from azure" >> $FLOG
+        echo   "$PACKAGE folder does not exist. Git clone from $GIT_REMOTE_NAME" >> $FLOG
         cd $CONDA_PKGS_SRC
-        git clone $REPOS
+        git clone $GIT_REMOTE_URL
 
-        # Set name of git server as "azure"
+        # Set name of git server 
         cd $FPACK
-        git remote rename origin azure
+        git remote rename origin $GIT_REMOTE_NAME
     fi
 
     # Install package in environment
