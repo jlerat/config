@@ -23,69 +23,104 @@
 
 # Get environment name
 ENVNAME=$1
+if [ -z "$1" ]
+then
+    echo "ERROR - Expected an envname argument"
+    exit 1
+fi
 
-# Get target folder
-FCONDA=/datasets/work/ev-richmondflood/work/8_Software/conda
+# Select path to conda data
+FCONDAS=(
+    /datasets/ev-richmondflood/work/8_Software/conda
+    /datasets/work/ev-richmondflood/work/8_Software/conda
+)
+MACHINES=(vm pet)
+for ((i=0; i<${#FCONDAS[@]}; i++)); do
+    FPATH="${FCONDAS[$i]}"
+    if [ -e "$FPATH" ]; then
+        FCONDA=$FPATH
+        MACHINE="${MACHINES[$i]}"
+        break
+    fi    
+done
 
-FILENAME=$(basename $0)
-FLOG=~/conda/${FILENAME%.*}.log
+FILENAME=$(basename "$0")
+FLOG=$FCONDA/${FILENAME%.*}.log
 echo ------------------------------------------------- > $FLOG
+echo Start time : $(date) >> $FLOG
 echo Target folder : $FCONDA >> $FLOG
 echo Creating or updating environment $ENVNAME >> $FLOG
+echo Working in machine $MACHINE >> $FLOG
 echo ------------------------------------------------- >> $FLOG
 echo >> $FLOG
 
-module load miniconda3
-
-# conda dir on scratch
-mkdir -p $FCONDA
+#module load miniconda3
 
 # Set directories
 export CONDA_PKGS_DIRS=$FCONDA/pkgs
-mkdir -p $CONDA_PKGS_DIRS
-
 export CONDA_ENVS_DIRS=$FCONDA/envs
-mkdir -p $CONDA_ENVS_DIRS
-
 export CONDA_ENVS_FILES_DIRS=$FCONDA/envs_yml_files
-
 export CONDA_PKGS_SRC=$FCONDA/src
-mkdir -p $CONDA_PKGS_SRC
 
-# -------------------------------------------------------------------------
+TEST_DIRS=(
+    $FCONDA
+    $CONDA_PKGS_DIRS
+    $CONDA_ENVS_DIRS
+    $CONDA_ENVS_FILES_DIRS
+    $CONDA_PKGS_SRC
+)
+for test_dir in "${TEST_DIRS[@]}"; do
+    if [ ! -d "$test_dir" ]; then
+        echo "ERROR - directory does not exist ($test_dir)."
+        exit 1
+    fi
+done    
+echo "Directories existence checked." >> $FLOG
+
 echo >> $FLOG
-echo ----------------------------------- >> $FLOG
 echo CONDA info >> $FLOG
 conda info >> $FLOG
 
-# -------------------------------------------------------------------------
 echo >> $FLOG
-echo ----------------------------------- >> $FLOG
-echo Creating CONDA env >> $FLOG
+echo +++ Creating CONDA env +++ >> $FLOG
 echo >> $FLOG
 
-YAMLFILE=$CONDA_ENVS_FILES_DIRS/$ENVNAME.yml
+# Create Yaml file
+YAMLFILE_SRC=$CONDA_ENVS_FILES_DIRS/$ENVNAME.yml
+if [ ! -f "$YAMLFILE_SRC" ]; then
+    echo "ERROR - Yaml file does not exist ($YAMLFILE_SRC)."
+    exit 1
+fi
+echo "Yaml file existence checked." >> $FLOG
+echo >> $FLOG
 
-# Yaml file
-# CAUTION! We assume that the environment name given 
-# within the YAML file is the same than the file name.
+ENVNAME_MACHINE=$ENVNAME\_$MACHINE
+YAMLFILE=$CONDA_ENVS_FILES_DIRS/$ENVNAME_MACHINE.yml
 
-FENV=$CONDA_ENVS_DIRS/$ENVNAME
+sed "s/$ENVNAME/$ENVNAME_MACHINE/g" $YAMLFILE_SRC > $YAMLFILE
+echo "Yaml file processed." >> $FLOG
+echo >> $FLOG
+
+# Create env
+FENV=$CONDA_ENVS_DIRS/$ENVNAME_MACHINE
 if [ ! -d "$FENV" ]; then
-    echo Environment $ENVNAME does not exist. Create
+    echo Environment $ENVNAME_MACHINE does not exist. Create
     echo ".. Creating conda env"
-    conda env create --file=$YAMLFILE --prefix $CONDA_ENVS_DIRS/$ENVNAME >> $FLOG
+    conda env create --file=$YAMLFILE --prefix $CONDA_ENVS_DIRS/$ENVNAME_MACHINE >> $FLOG
 fi
 
 # -------------------------------------------------------------------------
 echo >> $FLOG
 echo ----------------------------------- >> $FLOG
 echo Activate CONDA env >> $FLOG
-conda activate $ENVNAME
+conda activate $ENVNAME_MACHINE
+
+# Set tmp dir in case there is not enough space in the original tmp 
+TMPDIR=$FCONDA/tmp
+mkdir -p $TMPDIR
 
 # -------------------------------------------------------------------------
-for PACKAGE in "hydrodiy" "hyzarr" "nrivplot" "nrivdata" \
-                        "nrivfloodfreq" "pygme" "floodstan" \
+for PACKAGE in "hydrodiy" "pygme" "floodstan" \
                         "termplot" "pyquasoare" "pyflood2022"
 do
     echo >> $FLOG
