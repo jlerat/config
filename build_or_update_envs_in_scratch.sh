@@ -171,6 +171,6 @@ for PACKAGE in "${PACKAGES_TO_INSTALL[@]}"; do
     fi
 
     # Install package in environment
-    pip install -e .
+    export TMPDIR=$TMPDIR; pip install -e .
 
 done
