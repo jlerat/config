@@ -59,8 +59,6 @@ echo Working in machine $MACHINE >> $FLOG
 echo ------------------------------------------------- >> $FLOG
 echo >> $FLOG
 
-module load miniconda3
-
 # Set directories
 export CONDA_PKGS_DIRS=$FCONDA/pkgs
 export CONDA_ENVS_DIRS=$FCONDA/envs
@@ -125,31 +123,35 @@ TMPDIR=$FCONDA/tmp
 mkdir -p $TMPDIR
 
 # -------------------------------------------------------------------------
-declare -A PACKAGES
+declare -A GIT_REPO_URLS
 
-PACKAGES["hydrodiy"]=(github git@github.com:csiro-hydroinformatics/hydrodiy.git)
-PACKAGES["pygme"]=(github git@github.com:csiro-hydroinformatics/pygme.git)
-PACKAGES["pyquasoare"]=(github git@github.com:csiro-hydroinformatics/pyquasoare.git)
-PACKAGES["floodstan"]=(github git@github.com:jlerat/floodstan.git)
-PACKAGES["hyncu"]=(github git@github.com:jlerat/hyncu.git)
-PACKAGES["termplot"]=(github git@github.com:jlerat/termplot.git)
-PACKAGES["pyflood2022"]=(github git@github.com:jlerat/pyflood2022.git)
-PACKAGES["hyzarr"]=(azure git@ssh.dev.azure.com:v3/ler015/hyzarr/hyzarr)
-PACKAGES["nrivdata"]=(azure git@ssh.dev.azure.com:v3/ler015/northern_rivers/nrivdata)
+GIT_REPO_URLS[hydrodiy]=git@github.com:csiro-hydroinformatics/hydrodiy.git
+GIT_REPO_URLS[pygme]=git@github.com:csiro-hydroinformatics/pygme.git
+GIT_REPO_URLS[pyquasoare]=git@github.com:csiro-hydroinformatics/pyquasoare.git
+GIT_REPO_URLS[floodstan]=git@github.com:jlerat/floodstan.git
+GIT_REPO_URLS[hyncu]=git@github.com:jlerat/hyncu.git
+GIT_REPO_URLS[termplot]=git@github.com:jlerat/termplot.git
+GIT_REPO_URLS[pyflood2022]=git@github.com:jlerat/pyflood2022.git
+GIT_REPO_URLS[hyzarr]=git@ssh.dev.azure.com:v3/ler015/hyzarr/hyzarr
+GIT_REPO_URLS[nrivdata]=git@ssh.dev.azure.com:v3/ler015/northern_rivers/nrivdata
 
-for package_name in "hydrodiy" "pygme" "floodstan" \
-               "hyncu" "termplot" "pyquasoare" "pyflood2022"
-do
+PACKAGES_TO_INSTALL=(hydrodiy pygme floodstan hyncu termplot \
+                     pyquasoare pyflood2022)
+for PACKAGE in "${PACKAGES_TO_INSTALL[@]}"; do
     echo >> $FLOG
     echo ----------------------------------- >> $FLOG
     echo Installing $PACKAGE >> $FLOG
     echo  >> $FLOG
     FPACK=$CONDA_PKGS_SRC/$PACKAGE
 
-    GIT_REMOTE_NAME=PACKAGES[$package_name][0]
-    GIT_REMOTE_URL=PACKAGES[$package_name][1]
-    
-    echo    Git repos: $GIT_REMOTE_URL >> $FLOG
+    # Get repo url and remote name
+    GIT_REPO_URL="${GIT_REPO_URLS[$PACKAGE]}"
+    if echo $GIT_REPO_URL | grep -q "github"; then
+        GIT_REMOTE_NAME=github
+    else
+        GIT_REMOTE_NAME=azure
+    fi    
+    echo    Git repos [$PACKAGE]: \($GIT_REMOTE_NAME\) $GIT_REPO_URL >> $FLOG
 
     if [ -d "$FPACK" ]; then
         echo    "$PACKAGE folder exists. Git pull from $GIT_REMOTE_NAME" >> $FLOG
@@ -161,7 +163,7 @@ do
     else
         echo    "$PACKAGE folder does not exist. Git clone from $GIT_REMOTE_NAME" >> $FLOG
         cd $CONDA_PKGS_SRC
-        git clone $GIT_REMOTE_URL
+        git clone $GIT_REPO_URL
 
         # Set name of git server 
         cd $FPACK
