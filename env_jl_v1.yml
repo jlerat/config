@@ -10,6 +10,7 @@ dependencies:
   - cmdstan=2.34.1
   - cmdstanpy=1.2.2
   - cython=3.0.10
+  - flake8=7.1.1
   - h5py=3.9.0
   - ipython=8.20.0
   - matplotlib=3.8.4
