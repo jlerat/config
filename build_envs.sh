@@ -49,6 +49,7 @@ else
     exit 1
 fi
 
+DIRNAME=$(dirname "$0")
 FILENAME=$(basename "$0")
 FLOG=$FCONDA/${FILENAME%.*}.log
 echo ------------------------------------------------- > $FLOG
@@ -62,7 +63,7 @@ echo >> $FLOG
 # Set directories
 export CONDA_PKGS_DIRS=$FCONDA/pkgs
 export CONDA_ENVS_DIRS=$FCONDA/envs
-export CONDA_ENVS_FILES_DIRS=~/conda/envs_yml_files
+export CONDA_ENVS_FILES_DIRS=$DIRNAME
 export CONDA_PKGS_SRC=$FCONDA/src
 
 TEST_DIRS=(
@@ -76,8 +77,8 @@ for test_dir in "${TEST_DIRS[@]}"; do
         echo "ERROR - directory does not exist ($test_dir)."
         exit 1
     fi
+    echo "Directory $test_dir exists." >> $FLOG
 done    
-echo "Directories existence checked." >> $FLOG
 
 echo >> $FLOG
 echo CONDA info >> $FLOG
