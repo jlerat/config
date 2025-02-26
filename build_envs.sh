@@ -40,7 +40,7 @@ fi
 # Select path to conda data
 declare -A FCONDAS
 FCONDAS["vm"]="/datasets/ev-richmondflood/work/8_Software/conda"
-FCONDAS["pet"]="/datasets/work/ev-richmondflood/work/8_Software/conda"
+FCONDAS["pet"]="/datasets/work/lw-resilient-nr/work/0_Common_Data/5_Software/1_Python/conda"
 FCONDAS["sc"]="/scratch3/ler015/conda"
 if [[ -v FCONDAS["$MACHINE"] ]]; then
     FCONDA="${FCONDAS[$MACHINE]}"
