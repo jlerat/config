@@ -104,6 +104,9 @@ sed "s/$ENVNAME/$ENVNAME_MACHINE/g" $YAMLFILE_SRC > $YAMLFILE
 echo "Yaml file processed." >> $FLOG
 echo >> $FLOG
 
+# configure conda
+conda config --add pkgs_dirs $FCONDA/pkgs
+
 # Create env
 FENV=$CONDA_ENVS_DIRS/$ENVNAME_MACHINE
 if [ ! -d "$FENV" ]; then
