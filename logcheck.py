@@ -98,6 +98,12 @@ if len(flogs)>0:
 
     gc = grep("*.log", "process completed", "il")
     print(f"{indent(1)}Files completed      : {len(gc)}")
+
+    cmd = f"grep 'Execution time' {FOLDER}/*.log | sed 's/.* time ://g' "\
+          + "| sort -n | tail -n 1"
+    t = subprocess.check_output(cmd, shell=True)
+    print(f"{indent(1)}Longest execution time: {t.strip().decode()}")
+
     completed = get_task(gc)
 
     gw = grep("*.log", "warn", "il")
