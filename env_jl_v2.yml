@@ -12,6 +12,7 @@ dependencies:
   - cython=3.0.10
   - flake8=7.1.1
   - h5py=3.9.0
+  - ipyml=0.9.7
   - ipython=8.20.0
   - jupyter=1.1.1.1
   - matplotlib=3.8.4
@@ -21,6 +22,7 @@ dependencies:
   - pandas=2.2.1
   - pandoc=3.7.0.2
   - pip=23.1.2
+  - pyarrow=18.1.0
   - pyproj=3.5.0
   - pyshp=2.3.1
   - pytables=3.8.0
