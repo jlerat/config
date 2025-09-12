@@ -84,7 +84,7 @@ viewcsv()
 }
 
 # Update all repos
-update_repos()
+gupdate()
 {
     for f in *; do echo "Updating $f .."; cd $f; git pull github master | true; cd ..; done
 } 
