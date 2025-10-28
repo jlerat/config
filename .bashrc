@@ -83,7 +83,12 @@ viewcsv()
     column -s, -t < $1 | less -#2 -N -S
 }
 
-   
+# Update all repos
+gupdate()
+{
+    for f in *; do echo "Updating $f .."; cd $f; git pull github master | true; cd ..; done
+} 
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/apps/miniconda3/4.9.2/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
