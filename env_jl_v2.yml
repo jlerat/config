@@ -1,8 +1,6 @@
 name: env_jl_v2
 channels:
   - conda-forge
-  - anaconda
-  - defaults
 dependencies:
   - anybadge=1.16.0
   - cartopy=0.24.1
@@ -32,6 +30,7 @@ dependencies:
   - pytz=2025.2
   - rasterio=1.4.3
   - requests=2.32.5
+  - rpy2=3.6.4
   - scipy=1.16.2
   - setuptools=80.9.0
   - statsmodels=0.14.5
